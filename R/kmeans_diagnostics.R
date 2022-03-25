@@ -1,3 +1,5 @@
+#-------- SSE -------#
+
 #' Calculates Sum of Squared Error in each cluster
 #'
 #' @param object a fitted kmeans celery model
@@ -5,7 +7,7 @@
 #'
 #' @return A tibble with two columns, the cluster name and the SSE within that
 #' cluster.
-#'⁄⁄
+#'
 #' @examples
 #' kmeans_spec <- k_means(k = 5) %>%
 #'   set_engine_celery("stats")
@@ -100,13 +102,71 @@ sse_ratio <- function(object, ...) {
 
 
 
-## Silhouette
+#-------- Silhouette -------#
+
+#' Measures silhouettes between clusters
+#'
+#' @param .data A data frame
+#' @param clusters The column containing cluster assignments.
+#' @param distance The distance metric to use. (Currently only "euclidean")
+#'
+#' @return The silhouettes matrix.
+#'
+#' @examples
+#' kmeans_spec <- k_means(k = 5) %>%
+#'   set_engine_celery("stats")
+#'
+#' kmeans_fit <- fit(kmeans_spec, ~., mtcars)
+#'
+#' mtcars %>%
+#'   augment(kmeans_fit) %>%
+#'   silhouettes(.cluster)
+#'
+#' @export
+silhouettes <- function(.data, clusters,
+                        distance = "euclidean") {
+
+  mat <- .data %>%
+    select(-{{clusters}}) %>%
+    as.matrix() %>%
+    as.numeric()
+
+  .data %>%
+    pull({{clusters}}) %>%
+    cluster::silhouette(dist = dist(mat, method = distance))
+
+}
 
 
+#' Measures average silhouette between clusters
+#'
+#' @param .data A data frame
+#' @param clusters The column containing cluster assignments.
+#' @param distance The distance metric to use. (Currently only "euclidean")
+#'
+#' @return The average of all cluster silhouettes.
+#'
+#' @examples
+#' kmeans_spec <- k_means(k = 5) %>%
+#'   set_engine_celery("stats")
+#'
+#' kmeans_fit <- fit(kmeans_spec, ~., mtcars)
+#'
+#' mtcars %>%
+#'   augment(kmeans_fit) %>%
+#'   silhouettes(.cluster)
+#'
+#' @export
+avg_silhouette <- function(.data, clusters,
+                           distance = "euclidean") {
 
+  mean(silhouettes(.data, {{clusters}}, distance = "euclidean"))
 
-## Gap method
+}
 
+#-------- Gap Method -------#
+
+#-------- Enrichment -------#
 
 #' Measures relationship between cluster assignments and another categorical variable.
 #'
