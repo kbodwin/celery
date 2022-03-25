@@ -1,19 +1,11 @@
 #' Calculates Sum of Squared Error in each cluster
 #'
 #' @param object a fitted kmeans celery model
-#' @param distance A choice of distance metric to use for computing error.
-#' Currently only "euclidean".
+#' @param ... Other arguments passed to methods.
 #'
 #' @return A tibble with two columns, the cluster name and the SSE within that
 #' cluster.
-#'
-#' @export
-#'
-#' #' Extract cluster assignments from model
-#'
-#' @param object An cluster_spec object.
-#' @param ... Other arguments passed to methods.
-#'
+#'⁄⁄
 #' @examples
 #' kmeans_spec <- k_means(k = 5) %>%
 #'   set_engine_celery("stats")
@@ -22,7 +14,7 @@
 #'
 #' kmeans_fit %>%
 #'   within_cluster_sse()
-
+#'
 #' @export
 within_cluster_sse <- function(object, ...) {
 
@@ -78,7 +70,6 @@ tot_wss <- function(object, ...) {
 #' kmeans_fit %>%
 #'   tot_sse()
 #' @export
-
 tot_sse <- function(object, ...) {
 
   extract_fit_summary(object)$tot_sse
@@ -101,7 +92,6 @@ tot_sse <- function(object, ...) {
 #' kmeans_fit %>%
 #'   sse_ratio()
 #' @export
-
 sse_ratio <- function(object, ...) {
 
   tot_wss(object)/tot_sse(object)

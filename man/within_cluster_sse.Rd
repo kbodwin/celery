@@ -7,16 +7,14 @@
 within_cluster_sse(object, ...)
 }
 \arguments{
-\item{object}{An cluster_spec object.}
+\item{object}{a fitted kmeans celery model}
 
 \item{...}{Other arguments passed to methods.}
-
-\item{distance}{A choice of distance metric to use for computing error.
-Currently only "euclidean".}
 }
 \value{
 A tibble with two columns, the cluster name and the SSE within that
 cluster.
+⁄⁄
 }
 \description{
 Calculates Sum of Squared Error in each cluster
@@ -29,4 +27,5 @@ kmeans_fit <- fit(kmeans_spec, ~., mtcars)
 
 kmeans_fit \%>\%
   within_cluster_sse()
+
 }

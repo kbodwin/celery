@@ -31,6 +31,9 @@ kmeans_spec <- k_means(k = 3) %>%
 kmeans_fit <- kmeans_spec %>%
   fit(~ bill_length_mm + bill_depth_mm,
       data = penguins)
+
+kmeans_fit %>% extract_clusters()
+kmeans_fit %>% extract_fit_summary()
 ```
 
 

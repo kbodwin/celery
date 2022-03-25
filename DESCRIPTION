@@ -12,6 +12,7 @@ License: MIT + file LICENSE
 URL: https://github.com/EmilHvitfeldt/celery
 BugReports: https://github.com/EmilHvitfeldt/celery/issues
 Imports: 
+    cluster,
     ClusterR,
     dplyr,
     generics,

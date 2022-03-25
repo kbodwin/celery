@@ -8,6 +8,8 @@ extract_fit_summary(object, ...)
 }
 \arguments{
 \item{object}{a fitted cluster_spec object}
+
+\item{...}{other arguments passed to methods}
 }
 \value{
 A list with various summary elements
