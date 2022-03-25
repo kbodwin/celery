@@ -14,7 +14,6 @@ within_cluster_sse(object, ...)
 \value{
 A tibble with two columns, the cluster name and the SSE within that
 cluster.
-⁄⁄
 }
 \description{
 Calculates Sum of Squared Error in each cluster

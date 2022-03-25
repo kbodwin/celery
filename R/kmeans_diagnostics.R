@@ -20,15 +20,15 @@
 #' @export
 within_cluster_sse <- function(object, ...) {
 
-  obj_sum <- extract_fit_summary(object)
+  summ <- extract_fit_summary(object)
 
   res <- tibble::tibble(
     .cluster = unique(extract_cluster_assignment(object)$.cluster),
-    orig_label = unique(obj_summ$orig_label)
+    orig_label = unique(summ$orig_label)
   ) %>%
     arrange(orig_label) %>%
     mutate(
-      sse = obj_summ$within_sse
+      sse = summ$within_sse
     ) %>%
     arrange(.cluster) %>%
     select(-orig_label)
@@ -106,9 +106,9 @@ sse_ratio <- function(object, ...) {
 
 #' Measures silhouettes between clusters
 #'
-#' @param .data A data frame
-#' @param clusters The column containing cluster assignments.
-#' @param distance The distance metric to use. (Currently only "euclidean")
+#' @param .dist A distance matrix
+#' @param clusters A vector containing cluster assignments in the
+#' row order of the distance matrix.
 #'
 #' @return The silhouettes matrix.
 #'
@@ -118,33 +118,37 @@ sse_ratio <- function(object, ...) {
 #'
 #' kmeans_fit <- fit(kmeans_spec, ~., mtcars)
 #'
-#' mtcars %>%
-#'   augment(kmeans_fit) %>%
-#'   silhouettes(.cluster)
+#' dists <- mtcars %>%
+#'   as.matrix() %>%
+#'   dist()
+#'
+#' silhouettes(dists, kmeans_fit$fit$cluster)
 #'
 #' @export
-silhouettes <- function(.data, clusters,
-                        distance = "euclidean") {
+silhouettes <- function(.dist, clusters) {
 
-  mat <- .data %>%
-    select(-{{clusters}}) %>%
-    as.matrix() %>%
-    as.numeric()
+  clust_int <- as.integer(gsub("Cluster_", "", clusters))
 
-  .data %>%
-    pull({{clusters}}) %>%
-    cluster::silhouette(dist = dist(mat, method = distance))
+  sil <- cluster::silhouette(clust_int, .dist)
+
+  sil %>%
+    unclass() %>%
+    tibble::as_tibble() %>%
+    mutate(
+      cluster = factor(paste0("Cluster_", cluster)),
+      neighbor = factor(paste0("Cluster_", neighbor)),
+      sil_width = as.numeric(sil_width)
+    )
 
 }
 
 
 #' Measures average silhouette between clusters
+#' @param .dist A distance matrix
+#' @param clusters A vector containing cluster assignments in the
+#' row order of the distance matrix.
 #'
-#' @param .data A data frame
-#' @param clusters The column containing cluster assignments.
-#' @param distance The distance metric to use. (Currently only "euclidean")
-#'
-#' @return The average of all cluster silhouettes.
+#' @return The silhouettes matrix.
 #'
 #' @examples
 #' kmeans_spec <- k_means(k = 5) %>%
@@ -152,15 +156,16 @@ silhouettes <- function(.data, clusters,
 #'
 #' kmeans_fit <- fit(kmeans_spec, ~., mtcars)
 #'
-#' mtcars %>%
-#'   augment(kmeans_fit) %>%
-#'   silhouettes(.cluster)
+#' dists <- mtcars %>%
+#'   as.matrix() %>%
+#'   dist()
+#'
+#' avg_silhouette(dists, kmeans_fit$fit$cluster)
 #'
 #' @export
-avg_silhouette <- function(.data, clusters,
-                           distance = "euclidean") {
+avg_silhouette <- function(.dist, clusters) {
 
-  mean(silhouettes(.data, {{clusters}}, distance = "euclidean"))
+  mean(silhouettes(.dist, clusters)$sil_width)
 
 }
 
