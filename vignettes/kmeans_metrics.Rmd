@@ -16,14 +16,17 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(celery)
+library(palmerpenguins)
+library(tidyverse)
+library(tidymodels)
 ```
 
 
-## Metrics
+## Setup
 
 ```{r}
 kmeans_spec <- k_means(k = 3) %>%
-    set_engine_celery("stats") 
+    set_engine_celery("ClusterR") 
   
 kmeans_fit <- kmeans_spec %>%
   fit(~ bill_length_mm + bill_depth_mm,

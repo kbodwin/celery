@@ -47,7 +47,7 @@ initial conditions.  The algorithm proceeds as follows:
 1. Choose *k* random observations in the dataset.  These locations in space are
 declared to be the **initial centroids**.
 
-```{r}
+```{r, include = FALSE, eval = FALSE}
 init <- penguins %>%
   sample_n(3)
 
@@ -115,21 +115,6 @@ simply extract the fit from the fitted model object:
 kmeans_spec_fit$fit
 ```
 
-
-#### Cluster centroids
-
-A cluster is typically characterized by the location of its
-final centroid.  These can be accessed by:
-
-```{r}
-kmeans_spec_fit %>%
-  extract_clusters()
-```
-
-[interpretation]
-
-
-
 #### Cluster assignments and predictions
 
 Of the information provided from the model fit, the primary objective is typically
@@ -142,7 +127,7 @@ kmeans_spec_fit %>%
 ```
 
 Note that this function renames clusters in accordance with the standard `celery`
-naming convention and ordering: clusters are named "Clust1", "Clust2", etc.
+naming convention and ordering: clusters are named "Cluster_1", "Cluster_2", etc.
 and are numbered by the order they appear in the rows of the training dataset.
 
 Similarly, you can "predict" the cluster membership of new data using the 
@@ -161,7 +146,6 @@ kmeans_spec_fit %>%
 In the case of `kmeans`, the cluster assignment is predicted by finding the closest
 final centroid to the new observation.
 
-[Still under development:  This does not yet respect the cluster naming convention.]
 
 #### Augmenting datasets
 
@@ -170,6 +154,19 @@ To attach cluster assignments or predictions to a dataset, use `augment_cluster(
 ```{r}
 ### add this
 ```
+
+
+#### Cluster centroids
+
+A cluster is typically characterized by the location of its
+final centroid.  These can be accessed by:
+
+```{r}
+kmeans_spec_fit %>%
+  extract_fit_summary()
+```
+
+[interpretation]
 
 
 ## Workflows

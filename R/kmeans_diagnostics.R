@@ -1,6 +1,6 @@
-#' Calculates SSE in each cluster
+#' Calculates Sum of Squared Error in each cluster
 #'
-#' @param .model a fitted kmeans celery model
+#' @param object a fitted kmeans celery model
 #' @param distance A choice of distance metric to use for computing error.
 #' Currently only "euclidean".
 #'
@@ -8,21 +8,33 @@
 #' cluster.
 #'
 #' @export
+#'
+#' #' Extract cluster assignments from model
+#'
+#' @param object An cluster_spec object.
+#' @param ... Other arguments passed to methods.
+#'
+#' @examples
+#' kmeans_spec <- k_means(k = 5) %>%
+#'   set_engine_celery("stats")
+#'
+#' kmeans_fit <- fit(kmeans_spec, ~., mtcars)
+#'
+#' kmeans_fit %>%
+#'   within_cluster_sse()
 
-within_cluster_sse <- function(.model, distance = "euclidean") {
+#' @export
+within_cluster_sse <- function(object, ...) {
 
-  #if engine is stats
+  obj_sum <- extract_fit_summary(object)
 
-  # need to line up new names with old ones
-  # unique is in order of appearance and both clusters assignments
-  ## are in observatoin order
-  res <- tibble(
-    .cluster = unique(extract_cluster_assignment(.model)$.cluster),
-    orig_label = unique(.model$fit$cluster)
+  res <- tibble::tibble(
+    .cluster = unique(extract_cluster_assignment(object)$.cluster),
+    orig_label = unique(obj_summ$orig_label)
   ) %>%
     arrange(orig_label) %>%
     mutate(
-      sse = .model$fit$withinss
+      sse = obj_summ$within_sse
     ) %>%
     arrange(.cluster) %>%
     select(-orig_label)
@@ -31,44 +43,76 @@ within_cluster_sse <- function(.model, distance = "euclidean") {
 
 }
 
-#' Calculates SSE in each cluster
+
+#' Compute the sum of within-cluster SSE
 #'
-#' @param .model A fitted kmeans celery model
-#' @param distance A choice of distance metric to use for computing error.
-#' Currently only "euclidean".
+#' @param object An cluster_spec object.
+#' @param ... Other arguments passed to methods.
 #'
-#' @return A double; the sum of within-cluster sse.
+#' @examples
+#' kmeans_spec <- k_means(k = 5) %>%
+#'   set_engine_celery("stats")
 #'
+#' kmeans_fit <- fit(kmeans_spec, ~., mtcars)
+#'
+#' kmeans_fit %>%
+#'   tot_wss()
 #' @export
+tot_wss <- function(object, ...) {
 
-wss <- function(.model, distance = "euclidean") {
-
-  ### if engine is stats and model is kmeans and dist is euclidean
-
-  within_ss <- .model$fit$tot.withinss
-
-  return(within_ss)
+  sum(extract_fit_summary(object)$within_sse)
 
 }
 
-#' Calculates SSE in each cluster
+#' Compute the total sum of squares
 #'
-#' @param .model A fitted kmeans celery model
-#' @param distance A choice of distance metric to use for computing error.
-#' Currently only "euclidean".
+#' @param object An cluster_spec object.
+#' @param ... Other arguments passed to methods.
 #'
-#' @return A double; the ratio of within-cluster sse to total (null) sse.
+#' @examples
+#' kmeans_spec <- k_means(k = 5) %>%
+#'   set_engine_celery("stats")
 #'
+#' kmeans_fit <- fit(kmeans_spec, ~., mtcars)
+#'
+#' kmeans_fit %>%
+#'   tot_sse()
 #' @export
-sse_ratio <- function(.model, distance = "euclidean") {
 
-  return(wss(.model)/.model$fit$totss)
+tot_sse <- function(object, ...) {
+
+  extract_fit_summary(object)$tot_sse
+
+}
+
+
+
+#' Compute the ratio of the WSS to the total SSE
+#'
+#' @param object An cluster_spec object.
+#' @param ... Other arguments passed to methods.
+#'
+#' @examples
+#' kmeans_spec <- k_means(k = 5) %>%
+#'   set_engine_celery("stats")
+#'
+#' kmeans_fit <- fit(kmeans_spec, ~., mtcars)
+#'
+#' kmeans_fit %>%
+#'   sse_ratio()
+#' @export
+
+sse_ratio <- function(object, ...) {
+
+  tot_wss(object)/tot_sse(object)
 
 }
 
 
 
 ## Silhouette
+
+
 
 
 ## Gap method
@@ -109,3 +153,4 @@ enrichment <- function(data, clusters, var) {
   return(-log(res$p.value))
 
 }
+
